@@ -21,34 +21,29 @@
 using Gtk;
 using Gee;
 
-namespace SSHConf
-{
-    class EditorProp : Gtk.Box
-    {
+namespace SSHConf {
+    class EditorProp : Gtk.Box {
         protected Entry entry;
         protected Property prop;
-        construct
-        {
+        construct {
             orientation = Gtk.Orientation.HORIZONTAL;
             spacing = 6;
         }
     }
+
     /**
      * DynamicForward
      */
-    class EditorPropDynamicForward : SSHConf.EditorProp
-    {
+    class EditorPropDynamicForward : SSHConf.EditorProp {
         private Gtk.Entry      local_host;
         private Gtk.SpinButton local_port;
         private bool block_update = false;
 
-        public void write_to_property()
-        {
+        public void write_to_property() {
             block_update = true;
             string val ="";
 
-            if(local_host.buffer.get_length() > 0)
-            {
+            if(local_host.buffer.get_length() > 0) {
                 val += local_host.get_text();
                 val += ":";
             }
@@ -60,43 +55,36 @@ namespace SSHConf
             block_update = false;
         }
 
-        public void set_from_property()
-        {
+        public void set_from_property() {
             block_update = true;
-            if(prop.get_as_string() == null)
-            {
+            if(prop.get_as_string() == null) {
                 local_port.set_value(0);
                 local_host.set_text("");
                 block_update = false;
                 return;
             }
-            string value = prop.get_as_string();
 
+            string value = prop.get_as_string();
 
             /* Localhost */
             var lh = value.split(":");
-            if(lh.length == 1)
-            {
+            if(lh.length == 1) {
                 local_host.set_text("");
                 local_port.set_value(int.parse(lh[0]));
-            }
-            else
-            {
+            } else {
                 local_host.set_text(lh[0]);
                 local_port.set_value(int.parse(lh[1]));
             }
+
             block_update = false;
         }
 
-        public EditorPropDynamicForward(SSHConf.Entry en, Property p, Gtk.SizeGroup? sg)
-        {
+        public EditorPropDynamicForward(SSHConf.Entry en, Property p, Gtk.SizeGroup? sg) {
             entry = en;
             this.prop = p;
 
-            this.prop.notify["value"].connect((source, spec)=>
-            {
-                if(!block_update)
-                {
+            this.prop.notify["value"].connect((source, spec) => {
+                if(!block_update){
                     set_from_property();
                 }
             });
@@ -113,34 +101,26 @@ namespace SSHConf
             remove_but.set_relief(Gtk.ReliefStyle.NONE);
             pack_end(remove_but, false, false, 0);
             /* remove property */
-            remove_but.clicked.connect((source)=>
-            {
+            remove_but.clicked.connect((source) => {
                 entry.remove_prop(this.prop);
             });
 
             local_port = new Gtk.SpinButton.with_range(1,int.MAX, 1);
             pack_end(local_port, false, false, 0);
 
-
             local_host = new Gtk.Entry();
             pack_end(local_host, false, false, 0);
 
-
-
             set_from_property();
 
-
-            local_host.notify["text"].connect((source, spec)=>
-            {
-                if(!block_update)
-                {
+            local_host.notify["text"].connect((source, spec) => {
+                if(!block_update) {
                     write_to_property();
                 }
             });
-            local_port.notify["value"].connect((source, spec)=>
-            {
-                if(!block_update)
-                {
+
+            local_port.notify["value"].connect((source, spec)=> {
+                if(!block_update) {
                     write_to_property();
                 }
             });
@@ -150,29 +130,25 @@ namespace SSHConf
     /**
      * LocalForward
      */
-    class EditorPropLocalForward : SSHConf.EditorProp
-    {
+    class EditorPropLocalForward : SSHConf.EditorProp {
         private Gtk.Entry      local_host;
         private Gtk.SpinButton local_port;
         private Gtk.Entry      remote_host;
         private Gtk.SpinButton remote_port;
         private bool block_update = false;
 
-        public void write_to_property()
-        {
+        public void write_to_property() {
             block_update = true;
             string val ="";
 
-            if(local_host.buffer.get_length() > 0)
-            {
+            if(local_host.buffer.get_length() > 0) {
                 val += local_host.get_text();
                 val += ":";
             }
 
             val += "%i ".printf(local_port.get_value_as_int());
 
-            if(remote_host.buffer.get_length() > 0)
-            {
+            if(remote_host.buffer.get_length() > 0) {
                 val += remote_host.get_text();
                 val += ":";
             }
@@ -759,4 +735,3 @@ namespace SSHConf
         }
     }
 }
-

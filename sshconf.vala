@@ -21,7 +21,7 @@
 
 /**
  * Todo list:
- * 
+ *
  * @todo: Make validator for entry. (separate widget that shows this)
  * @todo: ComboBox entry is very long, needs better interface.
  */
@@ -33,11 +33,11 @@ using Gee;
 
 namespace SSHConf
 {
-    class Overview : Gtk.Dialog
+    class Overview : Gtk.Window
     {
         private string source_filename = null;
 
-        private Gtk.Widget apply_button;
+        private Gtk.Button   apply_button;
         private Gtk.ToolButton add_rule_button;
         private Gtk.ToolButton remove_rule_button;
         private Gtk.ToolButton copy_rule_button;
@@ -150,15 +150,9 @@ namespace SSHConf
 
             this.set_size_request(600, 400);
 
-            /* Apply button */
-            apply_button = this.add_button("gtk-cancel", -2);
-
-            /* Close button */
-            this.add_button("gtk-save", -1);
-
             /* The internal */
             main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
-            (this.get_content_area() as Gtk.Box).pack_end(main_box, true, true, 0);
+            this.add (main_box);
             main_box.set_border_width(8);
             var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             box.set_size_request(250, -1);
@@ -256,6 +250,20 @@ namespace SSHConf
             });
 
             box.pack_start(hbox, false, false, 0);
+            /* Apply button */
+            apply_button = new Gtk.Button.with_label ("Save");
+            main_box.pack_end(apply_button, false, false, 0);
+            apply_button.clicked.connect (() => {
+                write_file();
+            });
+
+            /* Close button */
+            var cancel = new Gtk.Button.with_label ("Cancel");
+            cancel.clicked.connect (() => {
+                Gtk.main_quit();
+            });
+            main_box.pack_end (cancel, false, false, 0);
+
             this.show_all();
             set_editor(default_settings);
         }
@@ -305,15 +313,13 @@ namespace SSHConf
          *
          * @todo: when there are changes, ask confirmation before discarding
          */
-        public override void response(int response_id)
+        public void response(int response_id)
         {
-
             if(response_id == -1)
             {
                 write_file();
             }
             Gtk.main_quit();
-            this.destroy();
         }
 
         static int main(string[] argv)
@@ -350,7 +356,7 @@ namespace SSHConf
 
             /* Create path to ~/.ssh/config */
             if(argv.length > 1) {
-                a.load_file(argv[1]);            
+                a.load_file(argv[1]);
             }else{
             var path = GLib.Path.build_filename(
                 GLib.Environment.get_home_dir(),
@@ -360,7 +366,7 @@ namespace SSHConf
              a.load_file(path);
             }
 
-            
+
 
             /* Response to the activate signal on GApplication by rasing
              * window */
